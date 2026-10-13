@@ -8,6 +8,7 @@ Handles movement, growth, and direction changes.
 class Snake:
     """A snake on the game grid made of (row, col) segments."""
     def __init__(self, start_row, start_col):
+        """Creates a 3-segment snake at the given position, moving right."""
         # Start with 3 segments so the snake can be seen as the game starts.
         self._body = [(start_row, start_col),
                       (start_row, start_col - 1),
