@@ -1,8 +1,8 @@
 # Snake Game (Python)
 
-A Python remake of our class Snake game, originally built in Java with Swing. This version uses **pygame-ce** for graphics and keeps the same object-oriented class design as the Java original, so the structure stays the same and only the language changes.
+A Python remake of my class Snake game, originally built in Java with Swing. This version uses **pygame-ce** for graphics and keeps the same object-oriented class design as the Java original, so the structure stays the same and only the language changes.
 
-The game is being built in sprints, so features are added a few at a time.
+The game is being built in increments, so features are added a few at a time.
 
 ## Project Status
 
