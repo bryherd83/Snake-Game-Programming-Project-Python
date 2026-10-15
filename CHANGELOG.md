@@ -11,5 +11,6 @@
 - Added missing docstrings
 - Added `README.md`
 - Fixed the food spawning on snake bug as well
+- Bug fixes for `Snake`, `SnakeFood`, and `Display` as well
 
 
