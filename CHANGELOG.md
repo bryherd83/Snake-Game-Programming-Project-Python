@@ -3,7 +3,7 @@
 - Started porting `Snake` class from Java to Python
 - Started porting `SnakeFood` class
 
-## v0.2 beta - October 13 - 14, 2026
+## v0.2 beta - October 8 - 14, 2026
 
 - Finished `Snake` and `SnakeFood` (see QA fixes)
 - Added `requirements.txt` (pygame-ce)
