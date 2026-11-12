@@ -11,6 +11,7 @@ from snake_food import SnakeFood
 TILE = 24 # One grid cell = TILE Pixels on Screen
 ROWS = 24 # for now until GameBoard is ported to py
 COLS = 32
+FPS = 10  # Max frames per second; stops the loop from using 100% CPU
 
 #Colors (same values as java)
 C_BG = (13, 17, 13)
@@ -29,6 +30,8 @@ class Display:
         self.height = ROWS * TILE
         self.screen = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption("Snake")
+        # Clock limits how fast the game loop repeats
+        self.clock = pygame.time.Clock()
 
         # Start the snake in the middle
         self.snake = Snake(ROWS // 2, COLS // 2)
@@ -48,6 +51,8 @@ class Display:
             self.draw_food()
             self.draw_snake()
             pygame.display.flip()
+            # Wait so the loop runs at most FPS times per second
+            self.clock.tick(FPS)
         pygame.quit()
 
     def draw_grid(self):
