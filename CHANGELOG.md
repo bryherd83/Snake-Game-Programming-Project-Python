@@ -33,5 +33,5 @@
 - `display.py` line 83: the game loop ran with no frame limit and used 100% of a CPU core. Added `clock.tick(FPS)`.
 - `snake_food.py` line 32: `respawn()` kept trying random cells, which got slow as the snake grew and never ended on a full board. It now picks from a list of empty cells and returns False when none are left.
 - `snake.py` line 75: the `body` property returned the real list, so other code could change the snake. It now returns a tuple copy.
-- `display.py`: the food glow image was rebuilt every frame; it is now built once in `__init__`.
+- `display.py` line 52: the food glow image was rebuilt every frame; it is now built once in `__init__`.
 - `snake.py` line 57: pressing two keys quickly (up then left while moving right) could reverse the snake into itself. The reverse check now uses the last step taken.
