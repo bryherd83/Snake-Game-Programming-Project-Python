@@ -78,12 +78,17 @@ class Display:
         pygame.quit()
 
     def tick(self):
-        """Moves the snake one step and stops the game if it crashes."""
+        """Moves the snake one step, stops on a crash, and eats food."""
         self.snake.move()
         if self._off_board(self.snake.head) or self.snake.hits_self():
             self.game_over = True
             # Interval 0 turns the timer off, so the snake stops moving
             pygame.time.set_timer(MOVE_EVENT, 0)
+            return
+        # Head on the food: grow and move the food to a new empty cell
+        if self.snake.head == (self.food.row, self.food.col):
+            self.snake.grow()
+            self.food.respawn(ROWS, COLS, self.snake.body)
 
     def _off_board(self, cell):
         """Returns True if a (row, col) cell is outside the window grid."""
