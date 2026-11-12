@@ -49,7 +49,7 @@ class Snake:
     def set_direction(self, d_row, d_col):
         """
         Sets the direction. Prevents reversing directly into the body.
-        Called from display.py on keypress.
+        Called from GameBoard.steer() when a movement key is pressed.
         """
         # Ignore if trying to reverse. Compare with the last step taken, not
         # the last key, so two quick keys (up then left while going right)
