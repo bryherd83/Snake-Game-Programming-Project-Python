@@ -48,6 +48,10 @@ class Display:
         pygame.display.set_caption("Snake")
         # Clock limits how fast the game loop repeats
         self.clock = pygame.time.Clock()
+        # Food glow: a see-through square, built once and reused every frame
+        self.food_glow = pygame.Surface((TILE + 6, TILE + 6), pygame.SRCALPHA)
+        pygame.draw.rect(self.food_glow, C_FOOD_GLOW, self.food_glow.get_rect(),
+                         border_radius=6)
 
         # Like the Swing Timer in Java: pygame posts MOVE_EVENT every MOVE_DELAY ms
         pygame.time.set_timer(MOVE_EVENT, MOVE_DELAY)
@@ -94,10 +98,7 @@ class Display:
         """Draws the food as a small apple with a glow, shine, and stem."""
         x = self.board.food.col * TILE
         y = self.board.food.row * TILE
-        # Glow: a see-through square drawn on its own surface, then pasted on
-        glow = pygame.Surface((TILE + 6, TILE + 6), pygame.SRCALPHA)
-        pygame.draw.rect(glow, C_FOOD_GLOW, glow.get_rect(), border_radius=6)
-        self.screen.blit(glow, (x - 3, y - 3))
+        self.screen.blit(self.food_glow, (x - 3, y - 3))
         # Apple body, shine dot, and stem
         pygame.draw.rect(self.screen, C_FOOD, (x + 3, y + 3, TILE - 6, TILE - 6),
                          border_radius=4)
