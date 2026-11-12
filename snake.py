@@ -38,6 +38,10 @@ class Snake:
         self._dir_row = d_row
         self._dir_col = d_col
 
+    def hits_self(self):
+        """Returns True if the head is on the same cell as a body segment."""
+        return self._body[0] in self._body[1:]
+
     # Getters 
 
     @property

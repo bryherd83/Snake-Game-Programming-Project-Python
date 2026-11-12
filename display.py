@@ -1,7 +1,7 @@
 """
 display.py
 Opens the game window and draws the snake and food.
-Sprint 1: static display only (no movement or controls yet).
+Moves the snake on a timer (Sprint 2).
 """
 
 import pygame
@@ -11,7 +11,10 @@ from snake_food import SnakeFood
 TILE = 24 # One grid cell = TILE Pixels on Screen
 ROWS = 24 # for now until GameBoard is ported to py
 COLS = 32
-FPS = 10  # Max frames per second; stops the loop from using 100% CPU
+FPS = 60  # Max frames per second; stops the loop from using 100% CPU
+MOVE_DELAY = 160  # ms between snake steps (same as baseSpeed in Display.java)
+# Custom event the timer sends each time the snake should take a step
+MOVE_EVENT = pygame.USEREVENT + 1
 
 #Colors (same values as java)
 C_BG = (13, 17, 13)
@@ -38,6 +41,10 @@ class Display:
         # So the food does not spawn on the snake
         self.food = SnakeFood(ROWS, COLS, self.snake.body)
 
+        # Like the Swing Timer in Java: pygame posts MOVE_EVENT every MOVE_DELAY ms
+        self.game_over = False
+        pygame.time.set_timer(MOVE_EVENT, MOVE_DELAY)
+
     def run(self):
         """Runs the game loop."""
         running = True
@@ -45,6 +52,8 @@ class Display:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+                elif event.type == MOVE_EVENT and not self.game_over:
+                    self.tick()
 
             self.screen.fill(C_BG)
             self.draw_grid()
@@ -54,6 +63,19 @@ class Display:
             # Wait so the loop runs at most FPS times per second
             self.clock.tick(FPS)
         pygame.quit()
+
+    def tick(self):
+        """Moves the snake one step and stops the game if it crashes."""
+        self.snake.move()
+        if self._off_board(self.snake.head) or self.snake.hits_self():
+            self.game_over = True
+            # Interval 0 turns the timer off, so the snake stops moving
+            pygame.time.set_timer(MOVE_EVENT, 0)
+
+    def _off_board(self, cell):
+        """Returns True if a (row, col) cell is outside the window grid."""
+        row, col = cell
+        return not (0 <= row < ROWS and 0 <= col < COLS)
 
     def draw_grid(self):
         """Draws the grid."""
