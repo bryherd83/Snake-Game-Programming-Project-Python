@@ -42,8 +42,12 @@ class Snake:
 
     @property
     def body(self):
-        """Returns the full list of body segments as (row, col) pairs."""
-        return self._body
+        """
+        Returns the body segments as a tuple of (row, col) pairs, head first.
+        A tuple is a copy that cannot be changed, so code outside Snake
+        cannot move or delete segments by accident (encapsulation).
+        """
+        return tuple(self._body)
 
     @property
     def head(self):
