@@ -1,15 +1,14 @@
 """
 display.py
-Opens the game window and draws the snake and food.
-Moves the snake on a timer (Sprint 2).
+Opens the game window, draws the board, and turns keys and timer ticks
+into GameBoard calls. Game rules live in game_board.py, not here.
 """
 
 import pygame
-from snake import Snake
-from snake_food import SnakeFood
+from game_board import GameBoard
 
 TILE = 24 # One grid cell = TILE Pixels on Screen
-ROWS = 24 # for now until GameBoard is ported to py
+ROWS = 24 # Board size; will come from board_settings.txt in Sprint 3
 COLS = 32
 FPS = 60  # Max frames per second; stops the loop from using 100% CPU
 MOVE_DELAY = 160  # ms between snake steps (same as baseSpeed in Display.java)
@@ -36,25 +35,21 @@ C_OUTLINE = (0, 70, 15)
 C_EYE = (5, 5, 5)
 
 class Display:
-    """The game window. Draws the board, snake, and food."""
+    """The game window. Draws the board and passes input to the GameBoard."""
 
     def __init__(self):
-        """Opens the window and creates the snake and food."""
+        """Opens the window and creates the game board."""
         pygame.init()
-        self.width = COLS * TILE
-        self.height = ROWS * TILE
+        # Display has a GameBoard; the board has the snake and food
+        self.board = GameBoard(ROWS, COLS)
+        self.width = self.board.cols * TILE
+        self.height = self.board.rows * TILE
         self.screen = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption("Snake")
         # Clock limits how fast the game loop repeats
         self.clock = pygame.time.Clock()
 
-        # Start the snake in the middle
-        self.snake = Snake(ROWS // 2, COLS // 2)
-        # So the food does not spawn on the snake
-        self.food = SnakeFood(ROWS, COLS, self.snake.body)
-
         # Like the Swing Timer in Java: pygame posts MOVE_EVENT every MOVE_DELAY ms
-        self.game_over = False
         pygame.time.set_timer(MOVE_EVENT, MOVE_DELAY)
 
     def run(self):
@@ -64,13 +59,16 @@ class Display:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
-                elif event.type == MOVE_EVENT and not self.game_over:
-                    self.tick()
+                elif event.type == MOVE_EVENT:
+                    self.board.step()
+                    if self.board.game_over:
+                        # Interval 0 turns the timer off
+                        pygame.time.set_timer(MOVE_EVENT, 0)
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_q:
                         running = False
-                    elif event.key in DIRECTION_KEYS and not self.game_over:
-                        self.snake.set_direction(*DIRECTION_KEYS[event.key])
+                    elif event.key in DIRECTION_KEYS:
+                        self.board.steer(*DIRECTION_KEYS[event.key])
 
             self.screen.fill(C_BG)
             self.draw_grid()
@@ -81,38 +79,21 @@ class Display:
             self.clock.tick(FPS)
         pygame.quit()
 
-    def tick(self):
-        """Moves the snake one step, stops on a crash, and eats food."""
-        self.snake.move()
-        if self._off_board(self.snake.head) or self.snake.hits_self():
-            self.game_over = True
-            # Interval 0 turns the timer off, so the snake stops moving
-            pygame.time.set_timer(MOVE_EVENT, 0)
-            return
-        # Head on the food: grow and move the food to a new empty cell
-        if self.snake.head == (self.food.row, self.food.col):
-            self.snake.grow()
-            self.food.respawn(ROWS, COLS, self.snake.body)
-
-    def _off_board(self, cell):
-        """Returns True if a (row, col) cell is outside the window grid."""
-        row, col = cell
-        return not (0 <= row < ROWS and 0 <= col < COLS)
-
     def draw_grid(self):
         """Draws the grid."""
         # Vertical lines, one per column edge
-        for c in range(COLS + 1):
+        for c in range(self.board.cols + 1):
             x = c * TILE
             pygame.draw.line(self.screen, C_GRID, (x, 0), (x, self.height))
         # Horizontal lines, one per row edge
-        for r in range(ROWS + 1):
+        for r in range(self.board.rows + 1):
             y = r * TILE
             pygame.draw.line(self.screen, C_GRID, (0, y), (self.width, y))
+
     def draw_food(self):
         """Draws the food as a small apple with a glow, shine, and stem."""
-        x = self.food.col * TILE
-        y = self.food.row * TILE
+        x = self.board.food.col * TILE
+        y = self.board.food.row * TILE
         # Glow: a see-through square drawn on its own surface, then pasted on
         glow = pygame.Surface((TILE + 6, TILE + 6), pygame.SRCALPHA)
         pygame.draw.rect(glow, C_FOOD_GLOW, glow.get_rect(), border_radius=6)
@@ -126,7 +107,7 @@ class Display:
 
     def draw_snake(self):
         """Draws the snake as rounded squares that fade toward the tail."""
-        body = self.snake.body
+        body = self.board.snake.body
         # Draw tail first so the head ends up on top
         for i in range(len(body) - 1, -1, -1):
             row, col = body[i]
@@ -148,7 +129,7 @@ class Display:
 
     def draw_eyes(self, x, y):
         """Draws two eyes on the head, facing the way the snake is moving."""
-        d_row, d_col = self.snake.dir_row, self.snake.dir_col
+        d_row, d_col = self.board.snake.dir_row, self.board.snake.dir_col
         if d_col > 0:       # right
             eyes = [(x + TILE - 6, y + 7), (x + TILE - 6, y + 15)]
         elif d_col < 0:     # left

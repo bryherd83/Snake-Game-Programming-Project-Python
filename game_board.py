@@ -1,0 +1,76 @@
+"""
+game_board.py
+The play area: board size, the snake, the food, and the game rules.
+Has no drawing or keyboard code, so it can change without touching Display.
+"""
+
+from snake import Snake
+from snake_food import SnakeFood
+
+
+class GameBoard:
+    """
+    Owns the board size, the snake, and the food (composition: a board
+    must have both), and runs the game one step at a time.
+    """
+
+    def __init__(self, rows, cols):
+        """Creates a rows x cols board with the snake in the middle."""
+        self._rows = rows
+        self._cols = cols
+        self._snake = Snake(rows // 2, cols // 2)
+        # Food gets the snake's body so it does not spawn on the snake
+        self._food = SnakeFood(rows, cols, self._snake.body)
+        self._game_over = False
+
+    def step(self):
+        """
+        Moves the snake one step, ends the game on a crash, and eats food.
+        Same order as actionPerformed in Display.java.
+        """
+        if self._game_over:
+            return
+        self._snake.move()
+        if self.is_outside(*self._snake.head) or self._snake.hits_self():
+            self._game_over = True
+            return
+        # Head on the food: grow and move the food to a new empty cell
+        if self._snake.head == (self._food.row, self._food.col):
+            self._snake.grow()
+            self._food.respawn(self._rows, self._cols, self._snake.body)
+
+    def steer(self, d_row, d_col):
+        """Turns the snake, unless the game is over."""
+        if not self._game_over:
+            self._snake.set_direction(d_row, d_col)
+
+    def is_outside(self, row, col):
+        """Returns True if (row, col) is off the board."""
+        return not (0 <= row < self._rows and 0 <= col < self._cols)
+
+    # Getters
+
+    @property
+    def rows(self):
+        """Returns the number of rows on the board."""
+        return self._rows
+
+    @property
+    def cols(self):
+        """Returns the number of columns on the board."""
+        return self._cols
+
+    @property
+    def snake(self):
+        """Returns the snake (read it to draw; change it through steer())."""
+        return self._snake
+
+    @property
+    def food(self):
+        """Returns the food."""
+        return self._food
+
+    @property
+    def game_over(self):
+        """Returns True once the snake has crashed."""
+        return self._game_over
