@@ -1,8 +1,10 @@
 """
 snake.py
-Stores the snake body as a list of (row, col) grid positions.
+Stores the snake body as (row, col) grid positions.
 Handles movement, growth, and direction changes.
 """
+
+from collections import deque
 
 
 class Snake:
@@ -10,9 +12,16 @@ class Snake:
     def __init__(self, start_row, start_col):
         """Creates a 3-segment snake at the given position, moving right."""
         # Start with 3 segments so the snake can be seen as the game starts.
-        self._body = [(start_row, start_col),
-                      (start_row, start_col - 1),
-                      (start_row, start_col - 2)]
+        # deque: adding a head and removing the tail are both fast,
+        # no matter how long the snake gets (a list shifts every item)
+        self._body = deque([(start_row, start_col),
+                            (start_row, start_col - 1),
+                            (start_row, start_col - 2)])
+        # Same cells as a set, so "is this cell part of the snake?" is fast
+        self._cells = set(self._body)
+        # Steps left where the tail stays put (that is how the snake grows)
+        self._grow_pending = 0
+        self._hit_self = False
         # Start moving right
         self._dir_row = 0
         self._dir_col = 1
@@ -22,13 +31,20 @@ class Snake:
     def move(self):
         """Moves the snake one step in the current direction."""
         head_row, head_col = self._body[0]
-        self._body.insert(0, (head_row + self._dir_row, head_col + self._dir_col))
-        self._body.pop()
+        new_head = (head_row + self._dir_row, head_col + self._dir_col)
+        if self._grow_pending:
+            self._grow_pending -= 1
+        else:
+            # Tail leaves first, so the head may move into the old tail cell
+            self._cells.discard(self._body.pop())
+        self._hit_self = new_head in self._cells
+        self._body.appendleft(new_head)
+        self._cells.add(new_head)
         self._moved_dir = (self._dir_row, self._dir_col)
 
     def grow(self):
-        """Grows the snake by duplicating the tail segment."""
-        self._body.append(self._body[-1])
+        """Grows the snake by one segment on its next move."""
+        self._grow_pending += 1
 
     def set_direction(self, d_row, d_col):
         """
@@ -44,8 +60,8 @@ class Snake:
         self._dir_col = d_col
 
     def hits_self(self):
-        """Returns True if the head is on the same cell as a body segment."""
-        return self._body[0] in self._body[1:]
+        """Returns True if the last move put the head on the snake's body."""
+        return self._hit_self
 
     # Getters 
 
