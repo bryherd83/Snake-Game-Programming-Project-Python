@@ -9,7 +9,7 @@ The game is being built in increments, so features are added a few at a time.
 | Sprint | Goal | Status |
 |---|---|---|
 | 1 | Port `Snake` and `SnakeFood`, open a window showing the snake and food | ✅ Done |
-| 2 | Movement, keyboard controls, eating food, and growing | Planned |
+| 2 | Movement, keyboard controls, eating food, and growing | ✅ Done |
 | 3 | Port `GameBoard` (walls and collision detection) | Planned |
 | 4 | Port `FileHandler` (high scores), menu, pause, and game-over screens | Planned |
 
@@ -31,7 +31,7 @@ The game is being built in increments, so features are added a few at a time.
 
 ## How to Play
 
-*Controls are planned for Sprint 2. In the current version, the window shows the snake and food but nothing moves yet.*
+*Working now: movement keys and Q. The snake stops when it hits the edge or itself. Pause, ENTER, score, levels, and high scores come in later sprints.*
 
 | Key | Action |
 |---|---|
@@ -53,7 +53,7 @@ The game is being built in increments, so features are added a few at a time.
 | File | Description | Ported? |
 |---|---|---|
 | `main.py` | Entry point; starts the game | ✅ (menu planned) |
-| `display.py` | Game window, drawing, and (later) keyboard input | ✅ (partial) |
+| `display.py` | Game window, drawing, move timer, and keyboard input | ✅ (partial) |
 | `snake.py` | Snake body, movement, growth, and direction logic | ✅ |
 | `snake_food.py` | Food position tracking and random respawning | ✅ |
 | `game_board.py` | Game grid, walls, and collision detection | Planned |
@@ -65,7 +65,9 @@ The game is being built in increments, so features are added a few at a time.
 - Snake body segments are `(row, col)` tuples instead of `int[]` arrays.
 - Getters are read-only `@property` methods, Python's version of encapsulation.
 - Food is now given the snake's body when created, fixing a bug where food could spawn on top of the snake at the start.
-- pygame replaces Swing, so the game loop is written directly instead of using a `Timer` and `repaint()`.
+- pygame replaces Swing. The game loop is written directly, and `pygame.time.set_timer` sends a move event every 160 ms in place of the Swing `Timer`.
+- A turn is checked against the last step the snake took, not the last key pressed, so two fast key presses can no longer turn the snake back into itself.
+- Food picks from a list of empty cells, so it never loops forever looking for a free spot.
 
 ## Authors
 
