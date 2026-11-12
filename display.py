@@ -28,8 +28,12 @@ DIRECTION_KEYS = {
 C_BG = (13, 17, 13)
 C_GRID = (22, 30, 22)
 C_HEAD = (0, 255, 80)
-C_BODY = (0, 200, 55)
 C_FOOD = (255, 55, 55)
+C_FOOD_SHINE = (255, 180, 180)
+C_FOOD_GLOW = (255, 55, 55, 40)  # last number is alpha (see-through)
+C_STEM = (90, 55, 15)
+C_OUTLINE = (0, 70, 15)
+C_EYE = (5, 5, 5)
 
 class Display:
     """The game window. Draws the board, snake, and food."""
@@ -106,19 +110,52 @@ class Display:
             y = r * TILE
             pygame.draw.line(self.screen, C_GRID, (0, y), (self.width, y))
     def draw_food(self):
-        """Draws the food."""
+        """Draws the food as a small apple with a glow, shine, and stem."""
         x = self.food.col * TILE
         y = self.food.row * TILE
-        center = (x + TILE // 2, y + TILE // 2)
-        pygame.draw.circle(self.screen, C_FOOD, center, TILE // 2)
+        # Glow: a see-through square drawn on its own surface, then pasted on
+        glow = pygame.Surface((TILE + 6, TILE + 6), pygame.SRCALPHA)
+        pygame.draw.rect(glow, C_FOOD_GLOW, glow.get_rect(), border_radius=6)
+        self.screen.blit(glow, (x - 3, y - 3))
+        # Apple body, shine dot, and stem
+        pygame.draw.rect(self.screen, C_FOOD, (x + 3, y + 3, TILE - 6, TILE - 6),
+                         border_radius=4)
+        pygame.draw.circle(self.screen, C_FOOD_SHINE, (x + 8, y + 8), 2)
+        pygame.draw.line(self.screen, C_STEM, (x + TILE // 2, y + 3),
+                         (x + TILE // 2 + 2, y), 2)
+
     def draw_snake(self):
-        """Draws the snake."""
-        for i, (row, col) in enumerate(self.snake.body):
+        """Draws the snake as rounded squares that fade toward the tail."""
+        body = self.snake.body
+        # Draw tail first so the head ends up on top
+        for i in range(len(body) - 1, -1, -1):
+            row, col = body[i]
             x = col * TILE
             y = row * TILE
             if i == 0:
-                color = C_HEAD
+                pygame.draw.rect(self.screen, C_HEAD, (x + 1, y + 1, TILE - 2, TILE - 2),
+                                 border_radius=4)
+                self.draw_eyes(x, y)
             else:
-                color = C_BODY
-            center = (x + TILE // 2, y + TILE // 2)
-            pygame.draw.circle(self.screen, color, center, TILE // 2)
+                # t goes from near 0 (neck) to near 1 (tail); same fade as Java
+                t = i / len(body)
+                color = (0, max(int(200 * (1 - t * 0.65)), 50),
+                         max(int(25 * (1 - t)), 10))
+                rect = (x + 2, y + 2, TILE - 4, TILE - 4)
+                pygame.draw.rect(self.screen, color, rect, border_radius=3)
+                # width=1 draws only the outline
+                pygame.draw.rect(self.screen, C_OUTLINE, rect, width=1, border_radius=3)
+
+    def draw_eyes(self, x, y):
+        """Draws two eyes on the head, facing the way the snake is moving."""
+        d_row, d_col = self.snake.dir_row, self.snake.dir_col
+        if d_col > 0:       # right
+            eyes = [(x + TILE - 6, y + 7), (x + TILE - 6, y + 15)]
+        elif d_col < 0:     # left
+            eyes = [(x + 6, y + 7), (x + 6, y + 15)]
+        elif d_row > 0:     # down
+            eyes = [(x + 7, y + TILE - 6), (x + 15, y + TILE - 6)]
+        else:               # up
+            eyes = [(x + 7, y + 6), (x + 15, y + 6)]
+        for center in eyes:
+            pygame.draw.circle(self.screen, C_EYE, center, 2)
