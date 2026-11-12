@@ -26,6 +26,7 @@ The game is being built in increments, so features are added a few at a time.
    pip install -r requirements.txt
 ```
 5. Run `main.py`.
+6. Optional: run the tests with `python -m unittest`.
 
 > **Why pygame-ce?** Regular `pygame` has no prebuilt version for Python 3.14, so this project uses `pygame-ce`, a community-maintained version that works the same way. Your code still uses `import pygame`.
 
@@ -53,11 +54,12 @@ The game is being built in increments, so features are added a few at a time.
 | File | Description | Ported? |
 |---|---|---|
 | `main.py` | Entry point; starts the game | ✅ (menu planned) |
-| `display.py` | Game window, drawing, move timer, and keyboard input | ✅ (partial) |
+| `display.py` | Game window, drawing, move timer, and keyboard input (no game rules) | ✅ (partial) |
 | `snake.py` | Snake body, movement, growth, and direction logic | ✅ |
 | `snake_food.py` | Food position tracking and random respawning | ✅ |
-| `game_board.py` | Game grid, walls, and collision detection | Planned |
+| `game_board.py` | Board size, the snake and food, and the game rules (walls and settings file planned) | ✅ (partial) |
 | `file_handler.py` | Saves and loads high scores | Planned |
+| `test_game.py` | Unit tests for the game classes (`python -m unittest`) | New |
 | `requirements.txt` | Lists the libraries needed to run the game | ✅ |
 
 ## Changes from the Java Version
@@ -68,6 +70,8 @@ The game is being built in increments, so features are added a few at a time.
 - pygame replaces Swing. The game loop is written directly, and `pygame.time.set_timer` sends a move event every 160 ms in place of the Swing `Timer`.
 - A turn is checked against the last step the snake took, not the last key pressed, so two fast key presses can no longer turn the snake back into itself.
 - Food picks from a list of empty cells, so it never loops forever looking for a free spot.
+- Game rules (move, crash, eat) live in `GameBoard` instead of `Display`, so each class has one job. In Java they were inside `Display.actionPerformed`.
+- The snake body is a `deque` with a matching `set`, so moving and crash checks stay fast however long the snake gets.
 
 ## Authors
 

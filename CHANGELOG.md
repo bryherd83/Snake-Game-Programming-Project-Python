@@ -25,9 +25,13 @@
 - Snake stops when it hits the edge of the board or its own body (game-over screen comes in Sprint 4)
 - New look: snake is drawn as rounded squares that fade toward the tail, with eyes facing the direction of travel; food is drawn as an apple (both from the Java version)
 - Game loop now runs at 60 FPS
+- New `GameBoard` class holds the board size, the snake, the food, and the game rules; `Display` now only draws and handles input (single responsibility)
+- Snake body is now a `deque` plus a `set`, so it stays fast as it grows; `grow()` keeps the tail in place on the next move
+- Added `test_game.py` with 10 unit tests (`python -m unittest`)
 
 ### Fixed
-- `display.py` line 81: the game loop ran with no frame limit and used 100% of a CPU core. Added `clock.tick(FPS)`.
+- `display.py` line 83: the game loop ran with no frame limit and used 100% of a CPU core. Added `clock.tick(FPS)`.
 - `snake_food.py` line 32: `respawn()` kept trying random cells, which got slow as the snake grew and never ended on a full board. It now picks from a list of empty cells and returns False when none are left.
-- `snake.py` line 59: the `body` property returned the real list, so other code could change the snake. It now returns a tuple copy.
-- `snake.py` line 41: pressing two keys quickly (up then left while moving right) could reverse the snake into itself. The reverse check now uses the last step taken.
+- `snake.py` line 75: the `body` property returned the real list, so other code could change the snake. It now returns a tuple copy.
+- `display.py`: the food glow image was rebuilt every frame; it is now built once in `__init__`.
+- `snake.py` line 57: pressing two keys quickly (up then left while moving right) could reverse the snake into itself. The reverse check now uses the last step taken.
