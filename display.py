@@ -16,6 +16,14 @@ MOVE_DELAY = 160  # ms between snake steps (same as baseSpeed in Display.java)
 # Custom event the timer sends each time the snake should take a step
 MOVE_EVENT = pygame.USEREVENT + 1
 
+# Key -> (row step, col step). WASD and arrow keys, same as Display.java
+DIRECTION_KEYS = {
+    pygame.K_w: (-1, 0), pygame.K_UP: (-1, 0),
+    pygame.K_s: (1, 0), pygame.K_DOWN: (1, 0),
+    pygame.K_a: (0, -1), pygame.K_LEFT: (0, -1),
+    pygame.K_d: (0, 1), pygame.K_RIGHT: (0, 1),
+}
+
 #Colors (same values as java)
 C_BG = (13, 17, 13)
 C_GRID = (22, 30, 22)
@@ -54,6 +62,11 @@ class Display:
                     running = False
                 elif event.type == MOVE_EVENT and not self.game_over:
                     self.tick()
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_q:
+                        running = False
+                    elif event.key in DIRECTION_KEYS and not self.game_over:
+                        self.snake.set_direction(*DIRECTION_KEYS[event.key])
 
             self.screen.fill(C_BG)
             self.draw_grid()

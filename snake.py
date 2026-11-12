@@ -16,12 +16,15 @@ class Snake:
         # Start moving right
         self._dir_row = 0
         self._dir_col = 1
+        # Direction of the last step taken; used to block reversing
+        self._moved_dir = (0, 1)
 
     def move(self):
         """Moves the snake one step in the current direction."""
         head_row, head_col = self._body[0]
         self._body.insert(0, (head_row + self._dir_row, head_col + self._dir_col))
         self._body.pop()
+        self._moved_dir = (self._dir_row, self._dir_col)
 
     def grow(self):
         """Grows the snake by duplicating the tail segment."""
@@ -32,8 +35,10 @@ class Snake:
         Sets the direction. Prevents reversing directly into the body.
         Called from display.py on keypress.
         """
-        # Ignore if trying to reverse
-        if d_row == -self._dir_row and d_col == -self._dir_col:
+        # Ignore if trying to reverse. Compare with the last step taken, not
+        # the last key, so two quick keys (up then left while going right)
+        # cannot turn the snake back into itself before it moves.
+        if (d_row, d_col) == (-self._moved_dir[0], -self._moved_dir[1]):
             return
         self._dir_row = d_row
         self._dir_col = d_col
