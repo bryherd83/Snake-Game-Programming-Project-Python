@@ -62,14 +62,21 @@ class GameBoard:
         return self._cols
 
     @property
-    def snake(self):
-        """Returns the snake (read it to draw; change it through steer())."""
-        return self._snake
+    def snake_body(self):
+        """Returns the snake's cells as a tuple of (row, col), head first."""
+        return self._snake.body
 
     @property
-    def food(self):
-        """Returns the food."""
-        return self._food
+    def snake_direction(self):
+        """Returns the snake's direction as (row step, col step)."""
+        return self._snake.dir_row, self._snake.dir_col
+
+    @property
+    def food_position(self):
+        """Returns the food's (row, col), or None if it has no cell yet."""
+        if self._food.row is None:
+            return None
+        return self._food.row, self._food.col
 
     @property
     def game_over(self):

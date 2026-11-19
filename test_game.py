@@ -114,6 +114,13 @@ class GameBoardTests(unittest.TestCase):
         board.steer(-1, 0)
         self.assertEqual(snake.dir_row, 0)
 
+    def test_getters_report_snake_and_food(self):
+        """The board's read-only getters match the snake and food it was given."""
+        board, snake, food = self.new_board(10, 10)
+        self.assertEqual(board.snake_body, snake.body)
+        self.assertEqual(board.snake_direction, (0, 1))
+        self.assertEqual(board.food_position, (food.row, food.col))
+
 
 if __name__ == "__main__":
     unittest.main()

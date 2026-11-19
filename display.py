@@ -102,8 +102,9 @@ class Display:
 
     def _draw_food(self):
         """Draws the food as a small apple with a glow, shine, and stem."""
-        x = self._board.food.col * TILE
-        y = self._board.food.row * TILE
+        row, col = self._board.food_position
+        x = col * TILE
+        y = row * TILE
         self._screen.blit(self._food_glow, (x - 3, y - 3))
         # Apple body, shine dot, and stem
         pygame.draw.rect(self._screen, C_FOOD, (x + 3, y + 3, TILE - 6, TILE - 6),
@@ -114,7 +115,7 @@ class Display:
 
     def _draw_snake(self):
         """Draws the snake as rounded squares that fade toward the tail."""
-        body = self._board.snake.body
+        body = self._board.snake_body
         # Draw tail first so the head ends up on top
         for i in range(len(body) - 1, -1, -1):
             row, col = body[i]
@@ -136,7 +137,7 @@ class Display:
 
     def _draw_eyes(self, x, y):
         """Draws two eyes on the head, facing the way the snake is moving."""
-        d_row, d_col = self._board.snake.dir_row, self._board.snake.dir_col
+        d_row, d_col = self._board.snake_direction
         if d_col > 0:       # right
             eyes = [(x + TILE - 6, y + 7), (x + TILE - 6, y + 15)]
         elif d_col < 0:     # left
