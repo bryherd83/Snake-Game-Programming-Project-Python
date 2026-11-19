@@ -31,7 +31,7 @@ class GameBoard:
         if self._game_over:
             return
         self._snake.move()
-        if self.is_outside(*self._snake.head) or self._snake.hits_self():
+        if self._is_outside(*self._snake.head) or self._snake.hits_self():
             self._game_over = True
             return
         # Head on the food: grow and move the food to a new empty cell
@@ -44,7 +44,7 @@ class GameBoard:
         if not self._game_over:
             self._snake.set_direction(d_row, d_col)
 
-    def is_outside(self, row, col):
+    def _is_outside(self, row, col):
         """Returns True if (row, col) is off the board."""
         return not (0 <= row < self._rows and 0 <= col < self._cols)
 

@@ -80,15 +80,15 @@ class Display:
                         self._board.steer(*DIRECTION_KEYS[event.key])
 
             self._screen.fill(C_BG)
-            self.draw_grid()
-            self.draw_food()
-            self.draw_snake()
+            self._draw_grid()
+            self._draw_food()
+            self._draw_snake()
             pygame.display.flip()
             # Wait so the loop runs at most FPS times per second
             self._clock.tick(FPS)
         pygame.quit()
 
-    def draw_grid(self):
+    def _draw_grid(self):
         """Draws the grid."""
         # Vertical lines, one per column edge
         for c in range(self._board.cols + 1):
@@ -99,7 +99,7 @@ class Display:
             y = r * TILE
             pygame.draw.line(self._screen, C_GRID, (0, y), (self._width, y))
 
-    def draw_food(self):
+    def _draw_food(self):
         """Draws the food as a small apple with a glow, shine, and stem."""
         x = self._board.food.col * TILE
         y = self._board.food.row * TILE
@@ -111,7 +111,7 @@ class Display:
         pygame.draw.line(self._screen, C_STEM, (x + TILE // 2, y + 3),
                          (x + TILE // 2 + 2, y), 2)
 
-    def draw_snake(self):
+    def _draw_snake(self):
         """Draws the snake as rounded squares that fade toward the tail."""
         body = self._board.snake.body
         # Draw tail first so the head ends up on top
@@ -122,7 +122,7 @@ class Display:
             if i == 0:
                 pygame.draw.rect(self._screen, C_HEAD, (x + 1, y + 1, TILE - 2, TILE - 2),
                                  border_radius=4)
-                self.draw_eyes(x, y)
+                self._draw_eyes(x, y)
             else:
                 # t goes from near 0 (neck) to near 1 (tail); same fade as Java
                 t = i / len(body)
@@ -133,7 +133,7 @@ class Display:
                 # width=1 draws only the outline
                 pygame.draw.rect(self._screen, C_OUTLINE, rect, width=1, border_radius=3)
 
-    def draw_eyes(self, x, y):
+    def _draw_eyes(self, x, y):
         """Draws two eyes on the head, facing the way the snake is moving."""
         d_row, d_col = self._board.snake.dir_row, self._board.snake.dir_col
         if d_col > 0:       # right
