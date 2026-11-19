@@ -35,22 +35,27 @@ C_OUTLINE = (0, 70, 15)
 C_EYE = (5, 5, 5)
 
 class Display:
-    """The game window. Draws the board and passes input to the GameBoard."""
+    """The game window. Draws the board and passes input to the GameBoard.
+
+    All fields start with an underscore: they are private to Display.
+    Python does not enforce this; the underscore is a convention that
+    tells other classes not to touch these fields.
+    """
 
     def __init__(self):
         """Opens the window and creates the game board."""
         pygame.init()
         # Display has a GameBoard; the board has the snake and food
-        self.board = GameBoard(ROWS, COLS)
-        self.width = self.board.cols * TILE
-        self.height = self.board.rows * TILE
-        self.screen = pygame.display.set_mode((self.width, self.height))
+        self._board = GameBoard(ROWS, COLS)
+        self._width = self._board.cols * TILE
+        self._height = self._board.rows * TILE
+        self._screen = pygame.display.set_mode((self._width, self._height))
         pygame.display.set_caption("Snake")
         # Clock limits how fast the game loop repeats
-        self.clock = pygame.time.Clock()
+        self._clock = pygame.time.Clock()
         # Food glow: a see-through square, built once and reused every frame
-        self.food_glow = pygame.Surface((TILE + 6, TILE + 6), pygame.SRCALPHA)
-        pygame.draw.rect(self.food_glow, C_FOOD_GLOW, self.food_glow.get_rect(),
+        self._food_glow = pygame.Surface((TILE + 6, TILE + 6), pygame.SRCALPHA)
+        pygame.draw.rect(self._food_glow, C_FOOD_GLOW, self._food_glow.get_rect(),
                          border_radius=6)
 
         # Like the Swing Timer in Java: pygame posts MOVE_EVENT every MOVE_DELAY ms
@@ -64,58 +69,58 @@ class Display:
                 if event.type == pygame.QUIT:
                     running = False
                 elif event.type == MOVE_EVENT:
-                    self.board.step()
-                    if self.board.game_over:
+                    self._board.step()
+                    if self._board.game_over:
                         # Interval 0 turns the timer off
                         pygame.time.set_timer(MOVE_EVENT, 0)
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_q:
                         running = False
                     elif event.key in DIRECTION_KEYS:
-                        self.board.steer(*DIRECTION_KEYS[event.key])
+                        self._board.steer(*DIRECTION_KEYS[event.key])
 
-            self.screen.fill(C_BG)
+            self._screen.fill(C_BG)
             self.draw_grid()
             self.draw_food()
             self.draw_snake()
             pygame.display.flip()
             # Wait so the loop runs at most FPS times per second
-            self.clock.tick(FPS)
+            self._clock.tick(FPS)
         pygame.quit()
 
     def draw_grid(self):
         """Draws the grid."""
         # Vertical lines, one per column edge
-        for c in range(self.board.cols + 1):
+        for c in range(self._board.cols + 1):
             x = c * TILE
-            pygame.draw.line(self.screen, C_GRID, (x, 0), (x, self.height))
+            pygame.draw.line(self._screen, C_GRID, (x, 0), (x, self._height))
         # Horizontal lines, one per row edge
-        for r in range(self.board.rows + 1):
+        for r in range(self._board.rows + 1):
             y = r * TILE
-            pygame.draw.line(self.screen, C_GRID, (0, y), (self.width, y))
+            pygame.draw.line(self._screen, C_GRID, (0, y), (self._width, y))
 
     def draw_food(self):
         """Draws the food as a small apple with a glow, shine, and stem."""
-        x = self.board.food.col * TILE
-        y = self.board.food.row * TILE
-        self.screen.blit(self.food_glow, (x - 3, y - 3))
+        x = self._board.food.col * TILE
+        y = self._board.food.row * TILE
+        self._screen.blit(self._food_glow, (x - 3, y - 3))
         # Apple body, shine dot, and stem
-        pygame.draw.rect(self.screen, C_FOOD, (x + 3, y + 3, TILE - 6, TILE - 6),
+        pygame.draw.rect(self._screen, C_FOOD, (x + 3, y + 3, TILE - 6, TILE - 6),
                          border_radius=4)
-        pygame.draw.circle(self.screen, C_FOOD_SHINE, (x + 8, y + 8), 2)
-        pygame.draw.line(self.screen, C_STEM, (x + TILE // 2, y + 3),
+        pygame.draw.circle(self._screen, C_FOOD_SHINE, (x + 8, y + 8), 2)
+        pygame.draw.line(self._screen, C_STEM, (x + TILE // 2, y + 3),
                          (x + TILE // 2 + 2, y), 2)
 
     def draw_snake(self):
         """Draws the snake as rounded squares that fade toward the tail."""
-        body = self.board.snake.body
+        body = self._board.snake.body
         # Draw tail first so the head ends up on top
         for i in range(len(body) - 1, -1, -1):
             row, col = body[i]
             x = col * TILE
             y = row * TILE
             if i == 0:
-                pygame.draw.rect(self.screen, C_HEAD, (x + 1, y + 1, TILE - 2, TILE - 2),
+                pygame.draw.rect(self._screen, C_HEAD, (x + 1, y + 1, TILE - 2, TILE - 2),
                                  border_radius=4)
                 self.draw_eyes(x, y)
             else:
@@ -124,13 +129,13 @@ class Display:
                 color = (0, max(int(200 * (1 - t * 0.65)), 50),
                          max(int(25 * (1 - t)), 10))
                 rect = (x + 2, y + 2, TILE - 4, TILE - 4)
-                pygame.draw.rect(self.screen, color, rect, border_radius=3)
+                pygame.draw.rect(self._screen, color, rect, border_radius=3)
                 # width=1 draws only the outline
-                pygame.draw.rect(self.screen, C_OUTLINE, rect, width=1, border_radius=3)
+                pygame.draw.rect(self._screen, C_OUTLINE, rect, width=1, border_radius=3)
 
     def draw_eyes(self, x, y):
         """Draws two eyes on the head, facing the way the snake is moving."""
-        d_row, d_col = self.board.snake.dir_row, self.board.snake.dir_col
+        d_row, d_col = self._board.snake.dir_row, self._board.snake.dir_col
         if d_col > 0:       # right
             eyes = [(x + TILE - 6, y + 7), (x + TILE - 6, y + 15)]
         elif d_col < 0:     # left
@@ -140,4 +145,4 @@ class Display:
         else:               # up
             eyes = [(x + 7, y + 6), (x + 15, y + 6)]
         for center in eyes:
-            pygame.draw.circle(self.screen, C_EYE, center, 2)
+            pygame.draw.circle(self._screen, C_EYE, center, 2)
