@@ -4,9 +4,6 @@ The play area: board size, the snake, the food, and the game rules.
 Has no drawing or keyboard code, so it can change without touching Display.
 """
 
-from snake import Snake
-from snake_food import SnakeFood
-
 
 class GameBoard:
     """
@@ -14,13 +11,17 @@ class GameBoard:
     must have both), and runs the game one step at a time.
     """
 
-    def __init__(self, rows, cols):
-        """Creates a rows x cols board with the snake in the middle."""
+    def __init__(self, rows, cols, snake, food):
+        """
+        Creates a rows x cols board that plays with the given snake and food.
+        snake and food are built in main.py and passed in (dependency
+        injection), so tests can hand in their own and GameBoard does not
+        depend on how they are made.
+        """
         self._rows = rows
         self._cols = cols
-        self._snake = Snake(rows // 2, cols // 2)
-        # Food gets the snake's body so it does not spawn on the snake
-        self._food = SnakeFood(rows, cols, self._snake.body)
+        self._snake = snake
+        self._food = food
         self._game_over = False
 
     def step(self):

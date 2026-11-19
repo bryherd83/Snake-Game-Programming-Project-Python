@@ -83,30 +83,36 @@ class SnakeFoodTests(unittest.TestCase):
 class GameBoardTests(unittest.TestCase):
     """Tests for the game rules in GameBoard.step()."""
 
-    def place_food_ahead(self, board):
+    def new_board(self, rows, cols):
+        """Builds a board the same way main.py does; returns board, snake, food."""
+        snake = Snake(rows // 2, cols // 2)
+        food = SnakeFood(rows, cols, snake.body)
+        return GameBoard(rows, cols, snake, food), snake, food
+
+    def place_food_ahead(self, snake, food, rows, cols):
         """Moves the food to the cell right in front of the snake's head."""
-        row, col = board.snake.head
-        board.food.respawn(board.rows, board.cols,
-                           [(r, c) for r in range(board.rows) for c in range(board.cols)
-                            if (r, c) != (row, col + 1)])
+        row, col = snake.head
+        food.respawn(rows, cols,
+                     [(r, c) for r in range(rows) for c in range(cols)
+                      if (r, c) != (row, col + 1)])
 
     def test_eating_grows_snake_and_moves_food(self):
         """Stepping onto the food grows the snake and puts the food elsewhere."""
-        board = GameBoard(24, 32)
-        self.place_food_ahead(board)
+        board, snake, food = self.new_board(24, 32)
+        self.place_food_ahead(snake, food, 24, 32)
         board.step()
         board.step()
-        self.assertEqual(len(board.snake.body), 4)
-        self.assertNotIn((board.food.row, board.food.col), board.snake.body)
+        self.assertEqual(len(snake.body), 4)
+        self.assertNotIn((food.row, food.col), snake.body)
 
     def test_leaving_board_ends_game(self):
         """Running right off the board sets game_over and ignores steering."""
-        board = GameBoard(10, 10)
+        board, snake, _ = self.new_board(10, 10)
         for _ in range(10):
             board.step()
         self.assertTrue(board.game_over)
         board.steer(-1, 0)
-        self.assertEqual(board.snake.dir_row, 0)
+        self.assertEqual(snake.dir_row, 0)
 
 
 if __name__ == "__main__":

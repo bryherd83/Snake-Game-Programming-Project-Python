@@ -5,11 +5,8 @@ into GameBoard calls. Game rules live in game_board.py, not here.
 """
 
 import pygame
-from game_board import GameBoard
 
 TILE = 24 # One grid cell = TILE Pixels on Screen
-ROWS = 24 # Board size; will come from board_settings.txt in Sprint 3
-COLS = 32
 FPS = 60  # Max frames per second; stops the loop from using 100% CPU
 MOVE_DELAY = 160  # ms between snake steps (same as baseSpeed in Display.java)
 # Custom event the timer sends each time the snake should take a step
@@ -42,11 +39,15 @@ class Display:
     tells other classes not to touch these fields.
     """
 
-    def __init__(self):
-        """Opens the window and creates the game board."""
+    def __init__(self, board):
+        """
+        Opens a window sized to fit the board.
+        board: the GameBoard to draw and control, built in main.py and passed
+        in (dependency injection), so Display never creates game objects.
+        """
         pygame.init()
         # Display has a GameBoard; the board has the snake and food
-        self._board = GameBoard(ROWS, COLS)
+        self._board = board
         self._width = self._board.cols * TILE
         self._height = self._board.rows * TILE
         self._screen = pygame.display.set_mode((self._width, self._height))
